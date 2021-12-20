@@ -476,16 +476,25 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Display in TAble"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="displayTableActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="clear">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Clear"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="edit">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Edit"/>
+                    <Property name="text" type="java.lang.String" value="Exit"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="editActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>

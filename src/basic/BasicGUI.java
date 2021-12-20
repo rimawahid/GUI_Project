@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JCheckBox;
@@ -271,10 +273,25 @@ public class BasicGUI extends javax.swing.JFrame {
         });
 
         displayTable.setText("Display in TAble");
+        displayTable.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                displayTableActionPerformed(evt);
+            }
+        });
 
         clear.setText("Clear");
+        clear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearActionPerformed(evt);
+            }
+        });
 
-        edit.setText("Edit");
+        edit.setText("Exit");
+        edit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -398,8 +415,23 @@ public class BasicGUI extends javax.swing.JFrame {
 
     private void displayTAreaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayTAreaActionPerformed
         // TODO add your handling code here:
-       // displayTArea();
+         displayTArea();
     }//GEN-LAST:event_displayTAreaActionPerformed
+
+    private void displayTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayTableActionPerformed
+        // TODO add your handling code here:
+        displayTable();
+    }//GEN-LAST:event_displayTableActionPerformed
+
+    private void clearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearActionPerformed
+        // TODO add your handling code here:
+        clear();
+    }//GEN-LAST:event_clearActionPerformed
+
+    private void editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editActionPerformed
+        // TODO add your handling code here:
+        System.exit(0);
+    }//GEN-LAST:event_editActionPerformed
 
     private void getAllRecord() {
         tName = name.getText();
@@ -447,44 +479,102 @@ public class BasicGUI extends javax.swing.JFrame {
         return ext;
     }
 
-//    private void displayTArea() {
-//        FileInputStream fobj = null;
-//        file = new JFileChooser(dir);
-//        int option = file.showOpenDialog(this);
-//        if (option == JFileChooser.APPROVE_OPTION) {
-//            fileName = file.getSelectedFile();
-//            dir = file.getCurrentDirectory();
-//            try {
-//                String st = "";
-//                fobj = new FileInputStream(fileName);
-//                int len = (int) fileName.length();
-//                for (int i = 0; i < len; i++) {
-//                    char st2 = 0;
-//                    try {
-//                        st2 = (char) fobj.read();
-//                        if (st2 == ',') {
-//                            st2 = '\t';
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    st = st + st2;
-//
-//                }
-//                showTArea.setText(st);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }finally{
-//                try {
-//                    if(fobj!= null){
-//                        fobj.close();
-//                    }
-//                } catch (Exception e) {
-//                }
-//            }
-//        }
-//    }
+    private void displayTArea() {
+        FileInputStream fobj = null;
+        file = new JFileChooser(dir);
+        int option = file.showOpenDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            fileName = file.getSelectedFile();
+            dir = file.getCurrentDirectory();
+            try {
+                String st = "";
+                fobj = new FileInputStream(fileName);
+                int len = (int) fileName.length();
+                for (int i = 0; i < len; i++) {
+                    char st2 = 0;
+                    try {
+                        st2 = (char) fobj.read();
+                        if (st2 == ',') {
+                            st2 = '\t';
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    st = st + st2;
 
+                }
+                showTArea.setText(st);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (fobj != null) {
+                        fobj.close();
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    private void displayTable() {
+        InputStream is = null;
+        file = new JFileChooser(dir);
+        int option = file.showOpenDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            fileName = file.getSelectedFile();
+            dir = file.getCurrentDirectory();
+        }
+        try {
+            File f = fileName;
+            is = new FileInputStream(f);
+            Scanner scan = new Scanner(is);
+            String[] arr;
+            while (scan.hasNextLine()) {
+                String line = scan.nextLine();
+                if (line.indexOf(",") > 1) {
+                    arr = line.split(",");
+                } else {
+                    arr = line.split("\n");
+                }
+                Object[] data = new Object[arr.length];
+                for (int i = 0; i < data.length; i++) {
+                    data[i] = arr[i];
+
+                }
+                model.addRow(data);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    private void clear(){
+        name.setText("");
+        address.setText("");
+        country.setSelectedIndex(0);
+        gender.clearSelection();
+        tDegree= "";
+        for (int i = 0; i < panelDegree.getComponentCount(); i++) {
+            JCheckBox checkBox = (JCheckBox) panelDegree.getComponent(i);
+            if(checkBox.isSelected()){
+                checkBox.setSelected(false);
+            }
+        }
+        if(showTAble.getRowCount()>0){
+            for (int i = showTAble.getRowCount()-1; i > -1; i--) {
+                model.removeRow(i);
+            }
+        }
+        showTArea.setText("");
+    }
     /**
      * @param args the command line arguments
      */
