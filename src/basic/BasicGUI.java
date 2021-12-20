@@ -5,7 +5,13 @@
  */
 package basic;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -18,12 +24,14 @@ import javax.swing.table.DefaultTableModel;
  */
 public class BasicGUI extends javax.swing.JFrame {
 
-    String tName,tAddress, tCountry,tGender; 
-    String tDegree= "";
-    String gap = "";
-    JFileChooser file ;
+    String tName, tAddress, tCountry, tGender;
+    String tDegree = "";
+    String gap = " ";
+    JFileChooser file;
     File dir;
     DefaultTableModel model;
+    File fileName = null;
+
     /**
      * Creates new form BasicGUI
      */
@@ -36,6 +44,7 @@ public class BasicGUI extends javax.swing.JFrame {
         model.addColumn("Country");
         model.addColumn("Gender");
         model.addColumn("Degree");
+
     }
 
     /**
@@ -70,7 +79,7 @@ public class BasicGUI extends javax.swing.JFrame {
         showTAble = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        showTArea = new javax.swing.JTextArea();
         jPanel5 = new javax.swing.JPanel();
         save = new javax.swing.JButton();
         displayTArea = new javax.swing.JButton();
@@ -241,9 +250,9 @@ public class BasicGUI extends javax.swing.JFrame {
             showTAble.getColumnModel().getColumn(4).setResizable(false);
         }
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        showTArea.setColumns(20);
+        showTArea.setRows(5);
+        jScrollPane2.setViewportView(showTArea);
 
         jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
@@ -255,6 +264,11 @@ public class BasicGUI extends javax.swing.JFrame {
         });
 
         displayTArea.setText("Display in TArea");
+        displayTArea.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                displayTAreaActionPerformed(evt);
+            }
+        });
 
         displayTable.setText("Display in TAble");
 
@@ -352,50 +366,125 @@ public class BasicGUI extends javax.swing.JFrame {
     private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
         // TODO add your handling code here:
         getAllRecord();
-        if(name.getText().isEmpty()){
+        if (name.getText().isEmpty()) {
             JOptionPane.showMessageDialog(rootPane, "Please Enter Name");
             name.requestFocus();
-        }else{
-           if(country.getSelectedIndex()==0){
-            JOptionPane.showMessageDialog(rootPane, "Please select Country");
-            country.requestFocus();
-        }else{
-             file = new   JFileChooser(dir); 
-             //add file filter 
-             FileNameExtensionFilter filter;
-             filter = new FileNameExtensionFilter(".txt",new String[]{"txt"});
-             file.addChoosableFileFilter(filter);
-             int option = file.showSaveDialog(this);
-             if(option == JFileChooser.APPROVE_OPTION){
-                 dir = file.getCurrentDirectory();
-                 model.addRow(new Object[]{tName, tAddress,tCountry, tGender, tDegree});
-             }
-           } 
+        } else {
+            if (country.getSelectedIndex() == 0) {
+                JOptionPane.showMessageDialog(rootPane, "Please select Country");
+                country.requestFocus();
+            } else {
+                file = new JFileChooser(dir);
+                //add file filter 
+                FileNameExtensionFilter filter;
+                filter = new FileNameExtensionFilter(".txt", new String[]{"txt"});
+                file.addChoosableFileFilter(filter);
+                int option = file.showSaveDialog(this);
+                if (option == JFileChooser.APPROVE_OPTION) {
+                    dir = file.getCurrentDirectory();
+                    model.addRow(new Object[]{tName, tAddress, tCountry, tGender, tDegree});
+                    fileName = file.getSelectedFile();
+                    try {
+                        writeAll();
+                    } catch (IOException ex) {
+                        Logger.getLogger(BasicGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    tDegree = "";
+                }
+            }
         }
-        
+
     }//GEN-LAST:event_saveActionPerformed
 
-    
-    private void getAllRecord(){
+    private void displayTAreaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayTAreaActionPerformed
+        // TODO add your handling code here:
+       // displayTArea();
+    }//GEN-LAST:event_displayTAreaActionPerformed
+
+    private void getAllRecord() {
         tName = name.getText();
         tAddress = address.getText();
         tCountry = country.getSelectedItem().toString();
-        if(male.isSelected()){
+        if (male.isSelected()) {
             tGender = "Male";
-        }else if(female.isSelected()){
+        } else if (female.isSelected()) {
             tGender = "Female";
-        }else{
+        } else {
             tGender = "Others";
         }
         //checkbox
         for (int i = 0; i < panelDegree.getComponentCount(); i++) {
             JCheckBox checkBox = (JCheckBox) panelDegree.getComponent(i);
-            if(checkBox.isSelected()){
+            if (checkBox.isSelected()) {
                 tDegree += checkBox.getText();
                 tDegree += gap;
             }
         }
     }
+
+    private void writeAll() throws IOException {
+        BufferedWriter buf = null;
+        try {
+            buf = new BufferedWriter(new FileWriter(fileName + getExtention(), true));
+            buf.write(tName + "," + tAddress + "," + tCountry + "," + tGender + "," + tDegree);
+            buf.newLine();
+            JOptionPane.showMessageDialog(rootPane, "Data Saved");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (buf != null) {
+                buf.close();
+            }
+        }
+    }
+
+    private String getExtention() {
+        String ext = "";
+        String extention = file.getFileFilter().getDescription();
+        if (extention.equals(".txt")) {
+            ext = ".txt";
+        }
+        return ext;
+    }
+
+//    private void displayTArea() {
+//        FileInputStream fobj = null;
+//        file = new JFileChooser(dir);
+//        int option = file.showOpenDialog(this);
+//        if (option == JFileChooser.APPROVE_OPTION) {
+//            fileName = file.getSelectedFile();
+//            dir = file.getCurrentDirectory();
+//            try {
+//                String st = "";
+//                fobj = new FileInputStream(fileName);
+//                int len = (int) fileName.length();
+//                for (int i = 0; i < len; i++) {
+//                    char st2 = 0;
+//                    try {
+//                        st2 = (char) fobj.read();
+//                        if (st2 == ',') {
+//                            st2 = '\t';
+//                        }
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    st = st + st2;
+//
+//                }
+//                showTArea.setText(st);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }finally{
+//                try {
+//                    if(fobj!= null){
+//                        fobj.close();
+//                    }
+//                } catch (Exception e) {
+//                }
+//            }
+//        }
+//    }
+
     /**
      * @param args the command line arguments
      */
@@ -455,12 +544,12 @@ public class BasicGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JRadioButton male;
     private javax.swing.JTextField name;
     private javax.swing.JRadioButton others;
     private javax.swing.JPanel panelDegree;
     private javax.swing.JButton save;
     private javax.swing.JTable showTAble;
+    private javax.swing.JTextArea showTArea;
     // End of variables declaration//GEN-END:variables
 }
